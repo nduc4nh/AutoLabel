@@ -1,6 +1,6 @@
 # AutoLabel
 
-##Environment:
+## Environment:
 
 python - linux 
 
@@ -14,7 +14,7 @@ anaconda: open Anaconda Prompt
 conda install --file requirements.txt
 ```
 
-##Run:
+## Run:
 
 ``` 
 python autolabel.py [number]
