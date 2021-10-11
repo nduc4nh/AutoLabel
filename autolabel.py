@@ -9,8 +9,12 @@ import sys
 import pickle
 
 import chromedriver_autoinstaller
-
-chromedriver_autoinstaller.install()
+from selenium.webdriver.chrome.options import Options
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--disable-dev-shm-usage')
+#chromedriver_autoinstaller.install()
 
 df = pd.read_csv("data.csv", encoding= "unicode_escape")
 
@@ -18,11 +22,11 @@ names = df['Description'].loc[df['Description'].notna()].str.lower().unique().to
 
 BASE_URL = r'https://www.amazon.com/s?k='
 
-#driver_path = "./drivers/chromedriver.exe"
+driver_path = "./drivers/chromedriver"
 
 def find_nav(url):
-    chrome = webdriver.Chrome()
-    #chrome = webdriver.Chrome(driver_path)   
+    #chrome = webdriver.Chrome()
+    chrome = webdriver.Chrome(driver_path, options=chrome_options)   
     chrome.get(BASE_URL[:-5] + url)
     
     response = Selector(text = chrome.page_source)
@@ -38,8 +42,8 @@ def find_nav(url):
     return list(set(final_re))
 
 def query_product(name,page_num = "1"):
-    chrome = webdriver.Chrome()
-    #chrome = webdriver.Chrome(driver_path)  
+    #chrome = webdriver.Chrome()
+    chrome = webdriver.Chrome(driver_path, options=chrome_options)  
     chrome.get(BASE_URL + name + "&page=" + page_num)
     response = Selector(text = chrome.page_source)
     if response.xpath("//ul[@class = 'a-pagination']").get() == None:
@@ -55,21 +59,24 @@ def query_product(name,page_num = "1"):
         
     #return query_product(name, page_num = str(int(page_num) + 1))
     return ""
+from selenium.webdriver.chrome.options import Options
+
 
 if __name__ == '__main__':
     d = {}
     num = sys.argv[-1]
+    
     try:
         for i,name in enumerate(names):
-            if i <= num:
-                continue
-            d[name] = query_product(name)
-            print(i)
-            print(name, d[name].__str__())
+                if i <= int(num):
+                    continue
+                d[name] = query_product(name)
+                print(i)
+                print(name, d[name].__str__())
             
-            if (i + 1)%100 == 0:
-                with open("./output/out{}".format(i),"wb") as f: pickle.dump(d,f)
-                d = {}
+                if (i + 1)%100 == 0:
+                    with open("./output/out{}".format(i),"wb") as f: pickle.dump(d,f)
+                    d = {}
     except:
         print("python autolabel [on going number e.g]")    
     
